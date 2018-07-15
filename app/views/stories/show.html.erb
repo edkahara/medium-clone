@@ -1,0 +1,92 @@
+<% provide(:page_title, @story.title) %>
+
+<div class="row">
+  <div class="col-md-8 col-md-offset-2 panel">
+    <div class="row author">
+      <div class="col-md-2">
+        <%= image_tag(User.find(@story.user_id).profile_photo.author.url, alt: 'Image', class: 'img-circle') %>
+      </div>
+      <div class="col-md-10">
+        <b><%= link_to User.find(@story.user_id).name, "/#{User.find(@story.user_id).username}" %></b><br />
+        <small><%= User.find(@story.user_id).bio %></small><br />
+        <%= @story.created_at.strftime('%-b %-d, %Y') %>
+      </div>
+    </div>
+    <h2 class="text-center"><b><%= @story.title %></b></h2>
+    <div class="body">
+      <%= @story.body.html_safe %>
+    </div>
+    <div class="tags">
+      <p><%= raw @story.tags.map { |t| link_to t.name, "/tags/#{t.name}", class: "btn btn-primary" }.join(' ') %></p>
+    </div>
+    <div class="row">
+      <div class="col-md-4">
+        <% if user_signed_in? %>
+          <% if current_user.liked_stories.include? @story %>
+            <%= awesome_link('fa fa-heart', unlike_story_path(@story), class: "engagement used", method: :put) %>
+          <% else %>
+            <%= awesome_link('fa fa-heart-o', like_story_path(@story), class: "engagement", method: :put) %>
+          <% end %>
+        <% else %>
+          <%= awesome_link('fa fa-heart-o engagement', like_story_path(@story), method: :put) %>
+        <% end %>
+
+        <% if @story.story_likers.count > 0 %>
+          <%= @story.story_likers.count %>
+        <% end %>
+      </div>
+      <div class="col-md-4">
+        <i class="engagement fa fa-comment-o" aria-hidden="true"></i>
+        <% if @story.comments.count > 0 %>
+          <%= @story.comments.count %>
+        <% end %>
+      </div>
+      <div class="col-md-3">
+        <% if user_signed_in? %>
+          <% if current_user.bookmarked_stories.include? @story %>
+            <%= awesome_link('fa fa-bookmark', unbookmark_story_path(@story), class: "engagement used", method: :put) %>
+          <% else %>
+            <%= awesome_link('fa fa-bookmark-o', bookmark_story_path(@story), class: "engagement", method: :put) %>
+          <% end %>
+        <% else %>
+          <%= awesome_link('fa fa-heart-o engagement', bookmark_story_path(@story), method: :put) %>
+        <% end %>
+
+        <% if @story.story_bookmarkers.count > 0 %>
+          <%= @story.story_bookmarkers.count %>
+        <% end %>
+      </div>
+      <% if user_signed_in? %>
+        <div class="col-md-1">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#"><i class="engagement fa fa-chevron-down" aria-hidden="true"></i></a>
+          <ul class="dropdown-menu">
+            <% if current_user.id == @story.user_id %>
+              <li><%= link_to 'Edit Story', edit_story_path(@story) %></li>
+              <li><%= link_to "Delete Story", story_path(@story), method: :delete, data: { confirm: "Are you sure?" } %></li>
+            <% else %>
+              <li><a href="#">Report Story</a></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+<h2 class="text-center">Responses</h2>
+<div class="row">
+  <div class="col-md-8 col-md-offset-2 panel panel-default" id="form">
+    <%= form_for [@story, Comment.new] do |f| %>
+      <div class="field">
+        <%= f.label :body %>
+        <%= f.text_area :body, class: 'form-control tinymce' %>
+      </div>
+
+      <div class="actions">
+        <%= f.submit 'Publish', class: 'btn btn-success center-block' %>
+      </div>
+    <% end %>
+  </div>
+</div>
+<ul>
+  <%= render(partial: 'comments/comment', collection: @story.comments) %>
+</ul>

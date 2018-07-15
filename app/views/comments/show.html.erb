@@ -1,0 +1,88 @@
+<% provide(:page_title, 'Comment') %>
+
+<div class="row">
+  <div class="col-md-8 col-md-offset-2 panel">
+    <div class="row author">
+      <div class="col-md-2">
+        <%= image_tag(User.find(@comment.user_id).profile_photo.author.url, alt: 'Image', class: 'img-circle') %>
+      </div>
+      <div class="col-md-10">
+        <b><%= link_to User.find(@comment.user_id).name, "/#{User.find(@comment.user_id).username}" %></b><br />
+        <small><%= User.find(@comment.user_id).bio %></small><br />
+        <%= @comment.created_at.strftime('%-b %-d, %Y') %>
+      </div>
+    </div>
+    <div class="body">
+      <%= @comment.body.html_safe %>
+    </div>
+    <div class="row">
+      <div class="col-md-4">
+        <% if user_signed_in? %>
+          <% if current_user.liked_comments.include? @comment %>
+            <%= awesome_link('fa fa-heart', unlike_comment_path(@comment), class: "engagement used", method: :put) %>
+          <% else %>
+            <%= awesome_link('fa fa-heart-o', like_comment_path(@comment), class: "engagement", method: :put) %>
+          <% end %>
+        <% else %>
+          <%= awesome_link('fa fa-heart-o engagement', like_comment_path(@comment), method: :put) %>
+        <% end %>
+
+        <% if @comment.comment_likers.count > 0 %>
+          <%= @comment.comment_likers.count %>
+        <% end %>
+      </div>
+      <div class="col-md-4">
+        <i class="engagement fa fa-comment-o" aria-hidden="true"></i>
+        <% if @comment.comments.count > 0 %>
+          <%= @comment.comments.count %>
+        <% end %>
+      </div>
+      <div class="col-md-3">
+        <% if user_signed_in? %>
+          <% if current_user.bookmarked_comments.include? @comment %>
+            <%= awesome_link('fa fa-bookmark', unbookmark_comment_path(@comment), class: "engagement used", method: :put) %>
+          <% else %>
+            <%= awesome_link('fa fa-bookmark-o', bookmark_comment_path(@comment), class: "engagement", method: :put) %>
+          <% end %>
+        <% else %>
+          <%= awesome_link('fa fa-heart-o engagement', bookmark_comment_path(@comment), method: :put) %>
+        <% end %>
+
+        <% if @comment.comment_bookmarkers.count > 0 %>
+          <%= @comment.comment_bookmarkers.count %>
+        <% end %>
+      </div>
+      <% if user_signed_in? %>
+        <div class="col-md-1">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#"><i class="engagement fa fa-chevron-down" aria-hidden="true"></i></a>
+          <ul class="dropdown-menu">
+            <% if current_user.id == @comment.user_id %>
+              <li><%= link_to 'Edit Comment', edit_comment_path(@comment) %></li>
+              <li><%= link_to "Delete Comment", comment_path(@comment), method: :delete, data: { confirm: "Are you sure?" } %></li>
+            <% else %>
+              <li><a href="#">Report Comment</a></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+<h2 class="text-center">Responses</h2>
+<div class="row">
+  <div class="col-md-8 col-md-offset-2 panel panel-default" id="form">
+    <%= form_for [@comment, Comment.new] do |f| %>
+      <div class="field">
+        <%= f.label :body %>
+        <%= f.text_area :body, class: 'form-control tinymce' %>
+      </div>
+
+      <div class="actions">
+        <%= f.submit 'Publish', class: 'btn btn-success center-block' %>
+      </div>
+    <% end %>
+  </div>
+</div>
+<ul>
+  <%= render(partial: 'comments/comment', collection: @comment.comments) %>
+</ul>

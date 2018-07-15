@@ -1,0 +1,84 @@
+/*
+ * This is a manifest file that'll be compiled into application.css, which will include all the files
+ * listed below.
+ *
+ * Any CSS and SCSS file within this directory, lib/assets/stylesheets, vendor/assets/stylesheets,
+ * or any plugin's vendor/assets/stylesheets directory can be referenced here using a relative path.
+ *
+ * You're free to add application-wide styles to this file and they'll appear at the bottom of the
+ * compiled file so the styles you add here take precedence over styles defined in any other CSS/SCSS
+ * files in this directory. Styles in this file should be added after the last require_* statement.
+ * It is generally better to create a new file per style scope.
+ *
+ */
+@import "bootstrap-sprockets";
+@import "bootstrap";
+
+body {
+  background-color: #fbfbfb;
+}
+.main {
+  padding: 20px;
+}
+ul {
+  list-style-type: none;
+}
+a {
+  color: black;
+  &:hover {
+    text-decoration: none;
+  }
+}
+#top {
+  background-color: white;
+  .nav > li > a:hover {
+    background-color: transparent;
+  }
+  #search {
+    text-align: center;
+  }
+  #query {
+    border-radius: 20px;
+  }
+  a {
+    color: black;
+  }
+}
+#text {
+  height: 300px;
+}
+#form {
+  padding: 20px;
+}
+.author {
+  padding: 20px;
+}
+.engagement {
+  padding: 10px;
+}
+.body {
+  img, iframe {
+    max-width: 98.6%;
+    margin: 5px;
+  }
+}
+h2,p {
+  font-weight: 500 !important;
+  font-size: 20px !important;
+  font-family: 'Droid Serif', sans-serif !important;
+}
+.bio {
+  padding: 30px;
+}
+.content {
+  display: none;
+}
+body.mceContentBody {
+  font-size: 50px;
+}
+.used {
+  color:  #33ff33;
+}
+.follow {
+  background-color: purple !important;
+}

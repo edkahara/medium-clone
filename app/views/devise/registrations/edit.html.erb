@@ -1,0 +1,75 @@
+<% provide(:page_title, 'Edit Profile') %>
+
+<div class="row">
+	<div class="col-md-6 col-md-offset-3 panel panel-default" id="form">
+		<%= form_for(resource, validate: true, as: resource_name, url: registration_path(resource_name), html: { method: :put }) do |f| %>
+		  <%= devise_error_messages! %>
+
+		  <div class="field form-group">
+				<%= f.label :name %><br />
+				<%= f.text_field :name, autofocus: true, class: "form-control", :maxlength => 50 %>
+		  </div>
+
+		  <div class="field form-group">
+				<%= f.label :username %><br />
+				<%= f.text_field :username, autofocus: true, class: "form-control", :maxlength => 30 %>
+		  </div>
+
+			<div class="field form-group">
+        <% if current_user.profile_photo? && current_user.profile_photo.size < 1.megabytes %>
+          <%= f.label :current_profile_photo %><br />
+          <%= image_tag(current_user.profile_photo.profile.url, alt: 'Image', class: 'img-circle') %>
+					<%= f.label :remove_current_profile_photo %>
+					<%= f.check_box :remove_profile_photo %><br />
+          <%= f.label :replace_current_profile_photo %>
+        <% else %>
+          <%= f.label :profile_photo %>
+        <% end %>
+          <%= f.file_field :profile_photo, autofocus: true, class: 'form-control' %>
+      </div>
+
+		  <div class="field form-group">
+				<%= f.label :bio %><br />
+				<%= f.text_field :bio, autofocus: true, class: "form-control", :maxlength => 160 %>
+		  </div>
+
+		  <div class="field form-group">
+				<%= f.label :email %><br />
+				<%= f.email_field :email, autofocus: true, class: "form-control" %>
+		  </div>
+
+		  <% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>
+				<div>Currently waiting confirmation for: <%= resource.unconfirmed_email %></div>
+		  <% end %>
+
+		  <div class="field form-group">
+				<%= f.label :password %> <i>(leave blank if you don't want to change it)</i><br />
+				<%= f.password_field :password, autocomplete: "off", class: "form-control" %>
+				<% if @minimum_password_length %>
+			  	<br />
+			  	<<%= @minimum_password_length %> characters minimum
+				<% end %>
+		  </div>
+
+		  <div class="field form-group">
+				<%= f.label :password_confirmation %><br />
+				<%= f.password_field :password_confirmation, autocomplete: "off", class: "form-control" %>
+		  </div>
+
+		  <div class="field form-group">
+				<%= f.label :current_password %> <i>(we need your current password to confirm your changes)</i><br />
+				<%= f.password_field :current_password, autocomplete: "off", class: "form-control" %>
+		  </div>
+
+		  <div class="actions form-group">
+				<%= f.submit "Update", class: "btn center-block btn-primary" %>
+		  </div>
+		<% end %>
+
+		<br />
+
+		<p>Unhappy? <%= link_to "Cancel my account", registration_path(resource_name), data: { confirm: "Are you sure?" }, method: :delete, class: "btn btn-danger" %></p>
+
+		<%= link_to "Back", :back %>
+	</div>
+</div>

@@ -1,0 +1,18 @@
+<%= provide(:page_title, 'Edit Comment') %>
+
+<h1 class="text-center">Editing Comment</h1>
+
+<div class="row">
+  <div class="col-md-10 col-md-offset-1 panel panel-default" id="form">
+    <%= form_for(@comment) do |f| %>
+      <div class="field">
+        <%= f.label :body %>
+        <%= f.text_area :body, class: 'form-control tinymce', id: "text" %>
+      </div>
+
+      <div class="actions">
+        <%= f.submit 'Publish', class: 'btn btn-success center-block' %>
+      </div>
+    <% end %>
+  </div>
+</div>

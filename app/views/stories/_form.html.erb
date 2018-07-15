@@ -1,0 +1,46 @@
+<div class="row">
+  <div class="col-md-10 col-md-offset-1 panel panel-default" id="form">
+    <%= form_for(story, validate: true) do |f| %>
+      <% if story.errors.any? %>
+        <div id="error_explanation">
+          <h2><%= pluralize(story.errors.count, "error") %> prohibited this post from being saved:</h2>
+          <ul>
+            <% story.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <div class="field">
+        <%= f.label :title %>
+        <%= f.text_field :title, class: 'form-control' %>
+      </div>
+
+      <div class="field">
+        <% if @story.banner_image? && @story.banner_image.size < 1.megabytes %>
+          <%= f.label :current_banner_image %><br />
+          <%= image_tag(@story.banner_image.medium.url, alt: 'Image') %><br />
+          <%= f.label :replace_current_banner_image %>
+        <% else %>
+          <%= f.label :banner_image %>
+        <% end %>
+        <%= f.file_field :banner_image, class: 'form-control' %>
+      </div>
+
+      <div class="field">
+        <%= f.label :body %>
+        <%= f.text_area :body, class: 'form-control tinymce', id: "text" %>
+      </div>
+
+      <div class="field">
+        <%= f.label :tags %>
+        <%= f.text_field :tag_list, class: 'form-control', placeholder: "Separate by commas" %>
+      </div>
+
+      <div class="actions">
+        <%= f.submit 'Publish', class: 'btn btn-success center-block' %>
+      </div>
+    <% end %>
+  </div>
+</div>

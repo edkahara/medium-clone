@@ -1,0 +1,42 @@
+<nav class="navbar navbar-static-top" id="top">
+	<div class="container">
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+			</button>
+      <%= link_to (raw('<b>Medium</b>')), root_path, class: 'navbar-brand' %>
+		</div>
+		<% if user_signed_in? %>
+			<div class="collapse navbar-collapse" id="myNavbar">
+				<ul class="nav navbar-nav navbar-right">
+					<% if !(yield(:page_title) == ('New Story') || yield(:page_title) == ('Edit Story')) %>
+						<li><%= link_to 'New Story', new_story_path %></li>
+					<% end %>
+					<li><a href="#"><i class="fa fa-bell-o" aria-hidden="true"></i></a></li>
+					<li class="dropdown">
+						<a class="dropdown-toggle" data-toggle="dropdown" href="#"><%= image_tag(current_user.profile_photo.navbar.url, alt: 'Image', class: 'img-circle') %></a>
+						<ul class="dropdown-menu">
+							<li><%= link_to 'Profile', "/#{current_user.username}" %></li>
+							<li><%= link_to 'Settings', edit_user_registration_path %></li>
+							<li role="separator" class="divider"></li>
+							<li><%= link_to 'About', about_path %></li>
+							<li><%= link_to 'Support', support_path %></li>
+							<li><%= link_to 'Privacy', privacy_path %></li>
+							<li><%= link_to 'Terms', terms_path %></li>
+							<li role="separator" class="divider"></li>
+							<li><%= link_to 'Sign out', destroy_user_session_path, method: :delete %></li>
+						</ul>
+					</li>
+				</ul>
+				<form class="navbar-form" role="search" id="search">
+					<div class="form-group">
+						<input type="text" class="form-control text-center" placeholder="Search" id="query">
+					</div>
+				</form>
+			</div>
+		<% end %>
+	</div>
+</nav>

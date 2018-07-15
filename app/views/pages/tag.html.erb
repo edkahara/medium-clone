@@ -1,0 +1,76 @@
+<% provide(:page_title, @tag.name) %>
+
+<div class="row">
+  <div class="col-md-6 col-md-offset-3 bio">
+    <h4 class="text-center"><b><%= @tag.name %></b></h4>
+  </div>
+</div>
+<div class="container">
+  <div class="row">
+    <% @stories.each do |story| %>
+      <div class="panel col-md-6 col-md-offset-3">
+        <div class="row author">
+          <div class="col-md-2">
+            <%= image_tag(User.find(story.user_id).profile_photo.author.url, alt: 'Image', class: 'img-circle') %>
+          </div>
+          <div class="col-md-10">
+            <b><%= link_to User.find(story.user_id).name, "/#{User.find(story.user_id).username}" %></b><br />
+            <%= story.created_at.strftime('%-b %-d, %Y') %>
+          </div>
+        </div>
+        <%= link_to story do %>
+          <div class="read">
+            <%= image_tag(story.banner_image.medium.url, alt: 'Image') %>
+            <h2 class="text-center"><b><%= story.title %></b></h2>
+          </div>
+        <% end %>
+        <div class="row">
+          <div class="col-md-4">
+            <% if user_signed_in? %>
+              <% if current_user.liked_stories.include? story %>
+                <i class="engagement fa fa-heart used" aria-hidden="true"></i>
+              <% else %>
+                <i class="engagement fa fa-heart-o" aria-hidden="true"></i>
+              <% end %>
+            <% else %>
+              <i class="engagement fa fa-heart-o" aria-hidden="true"></i>
+            <% end %>
+
+            <% if story.story_likers.count > 0 %>
+              <%= story.story_likers.count %>
+            <% end %>
+          </div>
+          <div class="col-md-4">
+            <i class="engagement fa fa-comment-o" aria-hidden="true"></i>
+            <% if story.comments.count > 0 %>
+              <%= story.comments.count %>
+            <% end %>
+          </div>
+          <div class="col-md-3">
+            <% if user_signed_in? %>
+              <% if current_user.bookmarked_stories.include? story %>
+                <i class="engagement fa fa-bookmark used" aria-hidden="true"></i>
+              <% else %>
+                <i class="engagement fa fa-bookmark-o" aria-hidden="true"></i>
+              <% end %>
+            <% else %>
+              <i class="engagement fa fa-bookmark-o" aria-hidden="true"></i>
+            <% end %>
+
+            <% if story.story_bookmarkers.count > 0 %>
+              <%= story.story_bookmarkers.count %>
+            <% end %>
+          </div>
+          <% if user_signed_in? && current_user.id == story.user_id %>
+            <div class="col-md-1">
+              <a class="dropdown-toggle" data-toggle="dropdown" href="#"><i class="engagement fa fa-chevron-down" aria-hidden="true"></i></a>
+              <ul class="dropdown-menu">
+                <li><%= link_to 'Edit Story', edit_story_path(story) %></li>
+              </ul>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

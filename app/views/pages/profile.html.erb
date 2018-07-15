@@ -1,0 +1,456 @@
+<% provide(:page_title, 'Profile') %>
+
+<div class="row">
+  <div class="col-md-5 col-md-offset-3 bio">
+    <h4><b><%= @user.name %></b></h4>
+    <p><%= @user.bio %></p>
+    <div class="row">
+      <div class="col-md-4">
+        <p><small><%= @user.followers.count %> Followers</small></p>
+      </div>
+      <div class="col-md-4">
+        <p><small><%= @user.following.count %> Following</small></p>
+      </div>
+    </div>
+    <% if user_signed_in? %>
+      <% if current_user.id != @user.id %>
+        <div>
+          <% if !current_user.following.include? @user %>
+            <%= link_to 'Follow', follow_user_path, method: :put, class: "btn btn-primary btn-xs follow" %>
+          <% else %>
+            <%= link_to 'Unfollow', unfollow_user_path, method: :put, class: "btn btn-danger btn-xs" %>
+          <% end %>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+  <div class="col-md-1 bio">
+    <%= image_tag(@user.profile_photo.profile.url, alt: 'Image', class: 'img-circle') %>
+  </div>
+</div>
+<div class="container">
+  <div class="row">
+    <div class="col-md-6 col-md-offset-3">
+      <nav id="profile-nav">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myActivity">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+        </div>
+        <div class="row">
+          <div class="col-md-10 col-md-offset-1">
+            <div class="collapse navbar-collapse" id="myActivity">
+              <ul class="nav navbar-nav">
+                <li data-index="Stories"><a href="#Stories">Stories</a></li>
+                <li data-index="Responses"><a href="#Responses">Responses</a></li>
+                <li data-index="Recommends"><a href="#Recommends">Recommends</a></li>
+                <li data-index="Bookmarks"><a href="#Bookmarks">Bookmarks</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </div>
+  </div>
+</div>
+<section class="content" data-index="Stories">
+  <div class="container">
+    <div class="row">
+      <% @stories.each do |story| %>
+        <div class="panel panel-default col-md-6 col-md-offset-3">
+          <div class="row author">
+            <div class="col-md-2">
+              <%= image_tag(@user.profile_photo.author.url, alt: 'Image', class: 'img-circle') %>
+            </div>
+            <div class="col-md-10">
+              <small><b><%= link_to @user.name, "/#{@user.username}" %></b></small><br />
+              <small><%= story.created_at.strftime('%-b %-d, %Y') %></small>
+            </div>
+          </div>
+          <%= link_to story do %>
+            <div class="read">
+              <%= image_tag(story.banner_image.medium.url, alt: 'Image') %>
+              <h2 class="text-center"><b><%= story.title %></b></h2>
+            </div>
+          <% end %>
+          <div class="row">
+            <div class="col-md-4">
+              <% if user_signed_in? %>
+                <% if current_user.liked_stories.include? story %>
+                  <i class="engagement fa fa-heart used" aria-hidden="true"></i>
+                <% else %>
+                  <i class="engagement fa fa-heart-o" aria-hidden="true"></i>
+                <% end %>
+              <% else %>
+                <i class="engagement fa fa-heart-o" aria-hidden="true"></i>
+              <% end %>
+
+              <% if story.story_likers.count > 0 %>
+                <%= story.story_likers.count %>
+              <% end %>
+            </div>
+            <div class="col-md-4">
+              <i class="engagement fa fa-comment-o" aria-hidden="true"></i>
+              <% if story.comments.count > 0 %>
+                <%= story.comments.count %>
+              <% end %>
+            </div>
+            <div class="col-md-3">
+              <% if user_signed_in? %>
+                <% if current_user.bookmarked_stories.include? story %>
+                  <i class="engagement fa fa-bookmark used" aria-hidden="true"></i>
+                <% else %>
+                  <i class="engagement fa fa-bookmark-o" aria-hidden="true"></i>
+                <% end %>
+              <% else %>
+                <i class="engagement fa fa-bookmark-o" aria-hidden="true"></i>
+              <% end %>
+
+              <% if story.story_bookmarkers.count > 0 %>
+                <%= story.story_bookmarkers.count %>
+              <% end %>
+            </div>
+            <% if user_signed_in? && current_user.id == story.user_id %>
+              <div class="col-md-1">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#"><i class="engagement fa fa-chevron-down" aria-hidden="true"></i></a>
+                <ul class="dropdown-menu">
+                  <li><%= link_to "Edit Story", edit_story_path(story) %></li>
+                  <li><%= link_to "Delete Story", story_path(story), method: :delete, data: { confirm: "Are you sure?" } %></li>
+                </ul>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</section>
+<section class="content" data-index="Responses">
+  <div class="row">
+    <% @comments.each do |comment| %>
+      <div class="panel panel-default col-md-6 col-md-offset-3">
+        <div class="row author">
+          <div class="col-md-2">
+            <%= image_tag(@user.profile_photo.author.url, alt: 'Image', class: 'img-circle') %>
+          </div>
+          <div class="col-md-10">
+            <small><b><%= link_to @user.name, "/#{@user.username}" %></b></small><br />
+            <small><%= comment.created_at.strftime('%-b %-d, %Y') %></small>
+          </div>
+        </div>
+        <%= link_to comment do %>
+          <div class="body">
+            <%= truncate(comment.body.html_safe, length: 100) %>
+          </div>
+        <% end %>
+        <div class="row">
+          <div class="col-md-4">
+            <% if user_signed_in? %>
+              <% if current_user.liked_comments.include? comment %>
+                <i class="engagement fa fa-heart used" aria-hidden="true"></i>
+              <% else %>
+                <i class="engagement fa fa-heart-o" aria-hidden="true"></i>
+              <% end %>
+            <% else %>
+              <i class="engagement fa fa-heart-o" aria-hidden="true"></i>
+            <% end %>
+
+            <% if comment.comment_likers.count > 0 %>
+              <%= comment.comment_likers.count %>
+            <% end %>
+          </div>
+          <div class="col-md-4">
+            <i class="engagement fa fa-comment-o" aria-hidden="true"></i>
+            <% if comment.comments.count > 0 %>
+              <%= comment.comments.count %>
+            <% end %>
+          </div>
+          <div class="col-md-3">
+            <% if user_signed_in? %>
+              <% if current_user.bookmarked_comments.include? comment %>
+                <i class="engagement fa fa-bookmark used" aria-hidden="true"></i>
+              <% else %>
+                <i class="engagement fa fa-bookmark-o" aria-hidden="true"></i>
+              <% end %>
+            <% else %>
+              <i class="engagement fa fa-bookmark-o" aria-hidden="true"></i>
+            <% end %>
+
+            <% if comment.comment_bookmarkers.count > 0 %>
+              <%= comment.comment_bookmarkers.count %>
+            <% end %>
+          </div>
+          <% if user_signed_in? && current_user.id == comment.user_id %>
+            <div class="col-md-1">
+              <a class="dropdown-toggle" data-toggle="dropdown" href="#"><i class="engagement fa fa-chevron-down" aria-hidden="true"></i></a>
+              <ul class="dropdown-menu">
+                <li><%= link_to "Edit Comment", edit_comment_path(comment) %></li>
+                <li><%= link_to "Delete Comment", comment_path(comment), method: :delete, data: { confirm: "Are you sure?" } %></li>
+              </ul>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</section>
+<section class="content" data-index="Recommends">
+  <div class="container">
+    <div class="row">
+      <% @likes.each do |like| %>
+        <div class="panel panel-default col-md-6 col-md-offset-3">
+          <div class="row author">
+            <div class="col-md-2">
+              <%= image_tag(@user.profile_photo.author.url, alt: 'Image', class: 'img-circle') %>
+            </div>
+            <div class="col-md-10">
+              <small><b><%= link_to @user.name, "/#{@user.username}" %></b></small><br />
+              <% if like.likeable_type == 'Story' %>
+                <small><%= Story.find(like.likeable_id).created_at.strftime('%-b %-d, %Y') %></small>
+              <% else %>
+                <small><%= Comment.find(like.likeable_id).created_at.strftime('%-b %-d, %Y') %></small>
+              <% end %>
+            </div>
+          </div>
+          <% if like.likeable_type == 'Story' %>
+            <%= link_to Story.find(like.likeable_id) do %>
+              <div class="read">
+                <%= image_tag(Story.find(like.likeable_id).banner_image.medium.url, alt: 'Image') %>
+                <h2 class="text-center"><b><%= Story.find(like.likeable_id).title %></b></h2>
+              </div>
+            <% end %>
+          <% else %>
+            <%= link_to Comment.find(like.likeable_id) do %>
+              <div class="body">
+                <%= truncate(Comment.find(like.likeable_id).body.html_safe, length: 100) %>
+              </div>
+            <% end %>
+          <% end %>
+          <div class="row">
+            <div class="col-md-4">
+              <% if like.likeable_type == 'Story' %>
+                <% if user_signed_in? %>
+                  <% if current_user.liked_stories.include? Story.find(like.likeable_id) %>
+                    <i class="engagement fa fa-heart used" aria-hidden="true"></i>
+                  <% else %>
+                    <i class="engagement fa fa-heart-o" aria-hidden="true"></i>
+                  <% end %>
+                <% else %>
+                  <i class="engagement fa fa-heart-o" aria-hidden="true"></i>
+                <% end %>
+
+                <% if Story.find(like.likeable_id).story_likers.count > 0 %>
+                  <%= Story.find(like.likeable_id).story_likers.count %>
+                <% end %>
+              <% else %>
+                <% if user_signed_in? %>
+                  <% if current_user.liked_comments.include? Comment.find(like.likeable_id) %>
+                    <i class="engagement fa fa-heart used" aria-hidden="true"></i>
+                  <% else %>
+                    <i class="engagement fa fa-heart-o" aria-hidden="true"></i>
+                  <% end %>
+                <% else %>
+                  <i class="engagement fa fa-heart-o" aria-hidden="true"></i>
+                <% end %>
+
+                <% if Comment.find(like.likeable_id).comment_likers.count > 0 %>
+                  <%= Comment.find(like.likeable_id).comment_likers.count %>
+                <% end %>
+              <% end %>
+            </div>
+            <div class="col-md-4">
+              <% if like.likeable_type == 'Story' %>
+                <i class="engagement fa fa-comment-o" aria-hidden="true"></i>
+                <% if Story.find(like.likeable_id).comments.count > 0 %>
+                  <%= Story.find(like.likeable_id).comments.count %>
+                <% end %>
+              <% else %>
+                <i class="engagement fa fa-comment-o" aria-hidden="true"></i>
+                <% if Comment.find(like.likeable_id).comments.count > 0 %>
+                  <%= Comment.find(like.likeable_id).comments.count %>
+                <% end %>
+              <% end %>
+            </div>
+            <div class="col-md-3">
+              <% if like.likeable_type == 'Story' %>
+                <% if user_signed_in? %>
+                  <% if current_user.bookmarked_stories.include? Story.find(like.likeable_id) %>
+                    <i class="engagement fa fa-bookmark used" aria-hidden="true"></i>
+                  <% else %>
+                    <i class="engagement fa fa-bookmark-o" aria-hidden="true"></i>
+                  <% end %>
+                <% else %>
+                  <i class="engagement fa fa-bookmark-o" aria-hidden="true"></i>
+                <% end %>
+
+                <% if Story.find(like.likeable_id).story_bookmarkers.count > 0 %>
+                  <%= Story.find(like.likeable_id).story_bookmarkers.count %>
+                <% end %>
+              <% else %>
+                <% if user_signed_in? %>
+                  <% if current_user.bookmarked_comments.include? Comment.find(like.likeable_id) %>
+                    <i class="engagement fa fa-bookmark used" aria-hidden="true"></i>
+                  <% else %>
+                    <i class="engagement fa fa-bookmark-o" aria-hidden="true"></i>
+                  <% end %>
+                <% else %>
+                  <i class="engagement fa fa-bookmark-o" aria-hidden="true"></i>
+                <% end %>
+
+                <% if Comment.find(like.likeable_id).comment_bookmarkers.count > 0 %>
+                  <%= Comment.find(like.likeable_id).comment_bookmarkers.count %>
+                <% end %>
+              <% end %>
+            </div>
+            <% if user_signed_in? && current_user.id == like.user_id %>
+              <div class="col-md-1">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#"><i class="engagement fa fa-chevron-down" aria-hidden="true"></i></a>
+                <ul class="dropdown-menu">
+                  <% if like.likeable_type == "Story" %>
+                    <li><%= link_to "Edit Story", edit_story_path(Story.find(like.likeable_id)) %></li>
+                    <li><%= link_to "Delete Story", story_path(Story.find(like.likeable_id)), method: :delete, data: { confirm: "Are you sure?" } %></li>
+                  <% else %>
+                    <li><%= link_to "Edit Comment", edit_comment_path(Comment.find(like.likeable_id)) %></li>
+                    <li><%= link_to "Delete Comment", comment_path(Comment.find(like.likeable_id)), method: :delete, data: { confirm: "Are you sure?" } %></li>
+                  <% end %>
+                </ul>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</section>
+<section class="content" data-index="Bookmarks">
+  <div class="container">
+    <div class="row">
+      <% @bookmarks.each do |bookmark| %>
+        <div class="panel panel-default col-md-6 col-md-offset-3">
+          <div class="row author">
+            <div class="col-md-2">
+              <%= image_tag(@user.profile_photo.author.url, alt: 'Image', class: 'img-circle') %>
+            </div>
+            <div class="col-md-10">
+              <small><b><%= link_to @user.name, "/#{@user.username}" %></b></small><br />
+              <% if bookmark.bookmarkable_type == 'Story' %>
+                <small><%= Story.find(bookmark.bookmarkable_id).created_at.strftime('%-b %-d, %Y') %></small>
+              <% else %>
+                <small><%= Comment.find(bookmark.bookmarkable_id).created_at.strftime('%-b %-d, %Y') %></small>
+              <% end %>
+            </div>
+          </div>
+          <% if bookmark.bookmarkable_type == 'Story' %>
+            <%= link_to Story.find(bookmark.bookmarkable_id) do %>
+              <div class="read">
+                <%= image_tag(Story.find(bookmark.bookmarkable_id).banner_image.medium.url, alt: 'Image') %>
+                <h2 class="text-center"><b><%= Story.find(bookmark.bookmarkable_id).title %></b></h2>
+              </div>
+            <% end %>
+          <% else %>
+            <%= link_to Comment.find(bookmark.bookmarkable_id) do %>
+              <div class="body">
+                <%= truncate(Comment.find(bookmark.bookmarkable_id).body.html_safe, length: 100) %>
+              </div>
+            <% end %>
+          <% end %>
+          <div class="row">
+            <div class="col-md-4">
+              <% if bookmark.bookmarkable_type == 'Story' %>
+                <% if user_signed_in? %>
+                  <% if current_user.liked_stories.include? Story.find(bookmark.bookmarkable_id) %>
+                    <i class="engagement fa fa-heart used" aria-hidden="true"></i>
+                  <% else %>
+                    <i class="engagement fa fa-heart-o" aria-hidden="true"></i>
+                  <% end %>
+                <% else %>
+                  <i class="engagement fa fa-heart-o" aria-hidden="true"></i>
+                <% end %>
+
+                <% if Story.find(bookmark.bookmarkable_id).story_likers.count > 0 %>
+                  <%= Story.find(bookmark.bookmarkable_id).story_likers.count %>
+                <% end %>
+              <% else %>
+                <% if user_signed_in? %>
+                  <% if current_user.liked_comments.include? Comment.find(bookmark.bookmarkable_id) %>
+                    <i class="engagement fa fa-heart used" aria-hidden="true"></i>
+                  <% else %>
+                    <i class="engagement fa fa-heart-o" aria-hidden="true"></i>
+                  <% end %>
+                <% else %>
+                  <i class="engagement fa fa-heart-o" aria-hidden="true"></i>
+                <% end %>
+
+                <% if Comment.find(bookmark.bookmarkable_id).comment_likers.count > 0 %>
+                  <%= Comment.find(bookmark.bookmarkable_id).comment_likers.count %>
+                <% end %>
+              <% end %>
+            </div>
+            <div class="col-md-4">
+              <% if bookmark.bookmarkable_type == 'Story' %>
+                <i class="engagement fa fa-comment-o" aria-hidden="true"></i>
+                <% if Story.find(bookmark.bookmarkable_id).comments.count > 0 %>
+                  <%= Story.find(bookmark.bookmarkable_id).comments.count %>
+                <% end %>
+              <% else %>
+                <i class="engagement fa fa-comment-o" aria-hidden="true"></i>
+                <% if Comment.find(bookmark.bookmarkable_id).comments.count > 0 %>
+                  <%= Comment.find(bookmark.bookmarkable_id).comments.count %>
+                <% end %>
+              <% end %>
+            </div>
+            <div class="col-md-3">
+              <% if bookmark.bookmarkable_type == 'Story' %>
+                <% if user_signed_in? %>
+                  <% if current_user.bookmarked_stories.include? Story.find(bookmark.bookmarkable_id) %>
+                    <i class="engagement fa fa-bookmark used" aria-hidden="true"></i>
+                  <% else %>
+                    <i class="engagement fa fa-bookmark-o" aria-hidden="true"></i>
+                  <% end %>
+                <% else %>
+                  <i class="engagement fa fa-bookmark-o" aria-hidden="true"></i>
+                <% end %>
+
+                <% if Story.find(bookmark.bookmarkable_id).story_bookmarkers.count > 0 %>
+                  <%= Story.find(bookmark.bookmarkable_id).story_bookmarkers.count %>
+                <% end %>
+              <% else %>
+                <% if user_signed_in? %>
+                  <% if current_user.bookmarked_comments.include? Comment.find(bookmark.bookmarkable_id) %>
+                    <i class="engagement fa fa-bookmark used" aria-hidden="true"></i>
+                  <% else %>
+                    <i class="engagement fa fa-bookmark-o" aria-hidden="true"></i>
+                  <% end %>
+                <% else %>
+                  <i class="engagement fa fa-bookmark-o" aria-hidden="true"></i>
+                <% end %>
+
+                <% if Comment.find(bookmark.bookmarkable_id).comment_bookmarkers.count > 0 %>
+                  <%= Comment.find(bookmark.bookmarkable_id).comment_bookmarkers.count %>
+                <% end %>
+              <% end %>
+            </div>
+            <% if user_signed_in? && current_user.id == bookmark.user_id %>
+              <div class="col-md-1">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#"><i class="engagement fa fa-chevron-down" aria-hidden="true"></i></a>
+                <ul class="dropdown-menu">
+                  <% if bookmark.bookmarkable_type == "Story" %>
+                    <li><%= link_to "Edit Story", edit_story_path(Story.find(bookmark.bookmarkable_id)) %></li>
+                    <li><%= link_to "Delete Story", story_path(Story.find(bookmark.bookmarkable_id)), method: :delete, data: { confirm: "Are you sure?" } %></li>
+                  <% else %>
+                    <li><%= link_to "Edit Comment", edit_comment_path(Comment.find(bookmark.bookmarkable_id)) %></li>
+                    <li><%= link_to "Delete Comment", comment_path(Comment.find(bookmark.bookmarkable_id)), method: :delete, data: { confirm: "Are you sure?" } %></li>
+                  <% end %>
+                </ul>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</section>
